@@ -2009,8 +2009,11 @@ select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg x
           <div class="home-search-wrap">
             <svg class="home-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="home-search" class="home-search-input"
-              placeholder="Type client or company name…" autocomplete="off" spellcheck="false">
+              placeholder="Type client name and press Enter…" autocomplete="off" spellcheck="false">
             <div class="home-results" id="home-results"></div>
+          </div>
+          <div style="font-size:12px;color:var(--navy-muted);margin-top:10px;text-align:center;letter-spacing:0.02em;">
+            Press <kbd style="background:var(--white);border:1px solid var(--gray-200);border-radius:4px;padding:1px 6px;font-size:11px;font-family:inherit;color:var(--navy);box-shadow:0 1px 2px rgba(0,0,0,0.06);">Enter</kbd> to search
           </div>
 
           <div class="home-or">or</div>
@@ -2022,9 +2025,19 @@ select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg x
             Start a new PoC engagement
           </button>
 
-          <div class="home-stats-strip" id="home-stats-strip"></div>
+          <div style="margin-top:52px;max-width:540px;margin-left:auto;margin-right:auto;">
+            <div style="border-left:3px solid var(--cobalt);padding:18px 24px;text-align:left;background:white;border-radius:0 12px 12px 0;box-shadow:0 2px 16px rgba(59,79,224,0.07);">
+              <div style="font-size:18px;font-weight:300;color:var(--navy);line-height:1.6;letter-spacing:-0.01em;font-style:italic;">
+                "Compliance is not a checkbox.<br>It is a <strong style="font-weight:700;font-style:normal;color:var(--cobalt);">commitment</strong> — to your customers, your regulators, and your future."
+              </div>
+              <div style="margin-top:14px;display:flex;align-items:center;gap:10px;">
+                <div style="width:28px;height:2px;background:var(--cobalt);border-radius:99px;"></div>
+                <div style="font-size:12px;font-weight:600;color:var(--navy-muted);letter-spacing:0.06em;text-transform:uppercase;">Redacto</div>
+              </div>
+            </div>
+          </div>
 
-          <div class="home-trust">
+          <div class="home-trust" style="margin-top:32px;">
             <span>Built on Expertise</span>
             <span class="dot"></span>
             Backed by Experience
@@ -6074,7 +6087,7 @@ function renderHome() {
     if (!matches.length) {
       results.innerHTML = `
         <div class="home-no-result">
-          <strong>No engagement found for "${escapeHtml(q)}"</strong>
+          <strong>No engagement found for "${escapeHtml(input.value)}"</strong>
           Want to start one?
           <button class="btn btn-primary" onclick="setView('scoper')" style="margin-top:10px;width:100%;justify-content:center;">
             + Start new PoC — ${escapeHtml(input.value)}
@@ -6084,7 +6097,6 @@ function renderHome() {
       return;
     }
 
-    const h = clientHealth;
     results.innerHTML = matches.map(c => {
       const hp = clientHealth(c);
       const prog = clientProgress(c);
@@ -6110,17 +6122,10 @@ function renderHome() {
     });
   };
 
-  input.removeEventListener('input', input._homeHandler);
-  input._homeHandler = doSearch;
-  input.addEventListener('input', input._homeHandler);
-
-  // Keyboard: Escape closes, Enter opens first
+  // Fire ONLY on Enter — not on every keystroke
   input.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); doSearch(); }
     if (e.key === 'Escape') { results.classList.remove('open'); input.value = ''; }
-    if (e.key === 'Enter') {
-      const first = results.querySelector('.home-result-row');
-      if (first) first.click();
-    }
   };
 
   // Click outside closes
